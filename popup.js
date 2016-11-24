@@ -2,7 +2,7 @@ const blockList = document.querySelector('.block-list');
 
 function buildHTMLFrom({ username, blockLevel }) {
   const options = Object.keys(levelName).map(level =>
-    `<option value="${level}" ${level === blockLevel ? 'selected' : ''}>${levelName[level]}</option>`).join('');
+    `<option value="${level}" ${(+level) === blockLevel ? 'selected' : ''}>${levelName[level]}</option>`).join('');
   const id = `block-${username}`;
   return `<li class="list-item"><label for="${id}">${username}</label><select id="${id}" data-username="${username}">${options}</select></li>`;
 }

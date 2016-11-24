@@ -44,11 +44,15 @@ function onChangeBlockLevel(event) {
 function renderUserPage(blockLevel) {
   const p = document.querySelector('.nick > p');
 
-  const select = document.createElement('select');
+  let select = p.querySelector('select#bdwm-block-select');
+  if (select) {
+    select.remove(); // bbs使用了页面缓存，需要清空重新render
+  }
+  select = document.createElement('select');
+  select.id = 'bdwm-block-select';
   select.innerHTML = Object.keys(levelName).map(level =>
-    `<option value="${level}" ${level === blockLevel ? 'selected' : ''}>${levelName[level]}</option>`).join('');
+    `<option value="${level}" ${(+level) === blockLevel ? 'selected' : ''}>${levelName[level]}</option>`).join('');
   select.addEventListener('input', onChangeBlockLevel, false);
-
   p.appendChild(select);
 }
 
