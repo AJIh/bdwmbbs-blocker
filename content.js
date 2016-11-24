@@ -1,3 +1,6 @@
+const OP_NONE = 0;
+const OP_HIDE = 1;
+
 function retrievePostsFromDOM() {
   const postsDOM = document.querySelectorAll('.post-card');
   return [...postsDOM].map(postDOM => { // 必须使用...语法，因为posts是NodeList
@@ -9,11 +12,10 @@ function retrievePostsFromDOM() {
   });
 }
 
-function hideSpecifiedPosts({ operations }) {
-  console.log('triggered');
+function hideSpecifiedPosts(operations) {
   const postsDOM = document.querySelectorAll('.post-card');
   operations.forEach((op, index) => {
-    if (op.hide) {
+    if (op === OP_HIDE) {
       postsDOM.item(index).style.display = 'none';
     }
   });
@@ -24,11 +26,11 @@ chrome.runtime.onMessage.addListener(
     switch (request.type) {
       case 'GET_POSTS': {
         const posts = retrievePostsFromDOM();
-        sendResponse({ posts });
+        sendResponse(posts);
         break;
       }
       case 'FILTER_POSTS':
-        hideSpecifiedPosts(request);
+        hideSpecifiedPosts(request.operations);
         break;
       default:
     }

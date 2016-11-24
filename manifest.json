@@ -21,6 +21,6 @@
     }
   ],
   "permissions": [
-    "activeTab", "webNavigation"
+    "activeTab", "webNavigation", "storage"
   ]
 }
