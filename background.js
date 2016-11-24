@@ -21,7 +21,7 @@ const GET_THREADS = 'GET_THREADS';
 const FILTER_ITEMS = 'FILTER_ITEMS';
 
 chrome.storage.sync.clear(() => {
-  // chrome.storage.sync.set({ 'bobobobo': 3 });
+  chrome.storage.sync.set({ 'Arbitrator': 0 });
 });
 
 function getMap(postsOrThreads) {
@@ -84,7 +84,7 @@ function handleNavigation(e) {
   const prefix = e.url.slice(prefixLength);
   if (prefix.startsWith('/post-read.php')) {
     filterPosts(e.tabId);
-  } else if (prefix.startsWith('/thread.php')) {
+  } else if (prefix.startsWith('/thread.php') || prefix.startsWith('/hot-topic.php')) {
     filterThreads(e.tabId);
   }
 }
