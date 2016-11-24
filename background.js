@@ -15,8 +15,13 @@ const BLOCK_ALL = 3;
 
 const OP_NONE = 0;
 const OP_HIDE = 1;
+
+const GET_POSTS = 'GET_POSTS';
+const GET_THREADS = 'GET_THREADS';
+const FILTER_ITEMS = 'FILTER_ITEMS';
+
 chrome.storage.sync.clear(() => {
-  chrome.storage.sync.set({ 'flamefox': 3 });
+  // chrome.storage.sync.set({ 'bobobobo': 3 });
 });
 
 function getMap(postsOrThreads) {
@@ -45,10 +50,31 @@ function getOperationListFromPosts(posts, callback) {
   });
 }
 
+function getOperationListFromThreads(threads, callback) {
+  const storage = chrome.storage.sync.get(getMap(threads), (answers) => {
+    const operations = threads.map(({ username }) => {
+      let op = OP_NONE;
+      if (answers[username] >= BLOCK_THREAD) {
+        op = OP_HIDE;
+      }
+      return op;
+    });
+    callback(operations);
+  });
+}
+
 function filterPosts(tabId) {
-  chrome.tabs.sendMessage(tabId, { type: 'GET_POSTS' }, (posts) => {
+  chrome.tabs.sendMessage(tabId, { type: GET_POSTS }, (posts) => {
     getOperationListFromPosts(posts, (operations) => {
-      chrome.tabs.sendMessage(tabId, { type: 'FILTER_POSTS', operations });
+      chrome.tabs.sendMessage(tabId, { type: FILTER_ITEMS, operations });
+    });
+  });
+}
+
+function filterThreads(tabId) {
+  chrome.tabs.sendMessage(tabId, { type: GET_THREADS }, (threads) => {
+    getOperationListFromThreads(threads, (operations) => {
+      chrome.tabs.sendMessage(tabId, { type: FILTER_ITEMS, operations });
     });
   });
 }
@@ -58,6 +84,8 @@ function handleNavigation(e) {
   const prefix = e.url.slice(prefixLength);
   if (prefix.startsWith('/post-read.php')) {
     filterPosts(e.tabId);
+  } else if (prefix.startsWith('/thread.php')) {
+    filterThreads(e.tabId);
   }
 }
 
