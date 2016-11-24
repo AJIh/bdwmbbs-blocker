@@ -33,7 +33,7 @@ function retrieveUsernameFromDOM() {
 
 function onChangeBlockLevel(event) {
   const username = retrieveUsernameFromDOM();
-  const blockLevel = event.target.value;
+  const blockLevel = Number.parseInt(event.target.value, 10);
   chrome.runtime.sendMessage({
     type: CHANGE_BLOCK_LEVEL,
     username,

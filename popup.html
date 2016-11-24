@@ -7,24 +7,33 @@
         font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
         font-size: 100%;
       }
-      #status {
-        /* avoid an excessively wide status text */
-        white-space: pre;
+      .block-list {
+        width: 300px;
+      }
+      .list-item {
+
+      }
+      .list-item label {
+        width: 80px;
         text-overflow: ellipsis;
         overflow: hidden;
-        max-width: 400px;
+        white-space: nowrap;
+        display: inline-block;
+        vertical-align: text-bottom;
+      }
+      .list-item select {
+        margin-left: 10px;
       }
     </style>
-
-    <!--
-      - JavaScript and HTML must be in separate files: see our Content Security
-      - Policy documentation[1] for details and explanation.
-      -
-      - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
-     -->
-    <script src="popup.js"></script>
   </head>
   <body>
-    <div id="status"></div>
+    <p>
+      屏蔽列表
+    </p>
+    <ul class="block-list">
+
+    </ul>
+    <script src="constant.js"></script>
+    <script src="popup.js"></script>
   </body>
 </html>
