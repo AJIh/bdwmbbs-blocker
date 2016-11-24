@@ -3,27 +3,6 @@ let currentTab;
 const matchUrlPrefix = 'https://bbs.pku.edu.cn/v2';
 const prefixLength = matchUrlPrefix.length;
 
-// 共4种屏蔽级别。
-// 0代表不屏蔽。
-// 1代表屏蔽所发的贴子。
-// 2代表屏蔽发帖以及回帖。
-// 3代表屏蔽发帖、回帖以及相关对话（别人对其的回帖）
-const BLOCK_NONE = 0;
-const BLOCK_THREAD = 1;
-const BLOCK_POSTS = 2;
-const BLOCK_ALL = 3;
-
-const OP_NONE = 0;
-const OP_HIDE = 1;
-
-const GET_POSTS = 'GET_POSTS';
-const GET_THREADS = 'GET_THREADS';
-const FILTER_ITEMS = 'FILTER_ITEMS';
-
-chrome.storage.sync.clear(() => {
-  chrome.storage.sync.set({ 'Arbitrator': 0 });
-});
-
 function getMap(postsOrThreads) {
   return postsOrThreads.reduce((prev, { username, quoteUsername }) => {
     prev[username] = BLOCK_NONE;
@@ -79,6 +58,14 @@ function filterThreads(tabId) {
   });
 }
 
+function renderUserPage(tabId) {
+  chrome.tabs.sendMessage(tabId, { type: GET_USER }, (username) => {
+    chrome.storage.sync.get({ [username]: 0 }, (answer) => {
+      chrome.tabs.sendMessage(tabId, { type: RENDER_USER, blockLevel: answer[username] });
+    });
+  });
+}
+
 function handleNavigation(e) {
   chrome.pageAction.show(e.tabId); // TODO
   const prefix = e.url.slice(prefixLength);
@@ -86,9 +73,31 @@ function handleNavigation(e) {
     filterPosts(e.tabId);
   } else if (prefix.startsWith('/thread.php') || prefix.startsWith('/hot-topic.php')) {
     filterThreads(e.tabId);
+  } else if (prefix.startsWith('/user.php')) {
+    renderUserPage(e.tabId);
   }
 }
 
-chrome.webNavigation.onDOMContentLoaded.addListener(handleNavigation, {url: [{urlPrefix: matchUrlPrefix}]})
+chrome.webNavigation.onDOMContentLoaded.addListener(handleNavigation, {url: [{urlPrefix: matchUrlPrefix}]});
 
-chrome.webNavigation.onHistoryStateUpdated.addListener(handleNavigation, {url: [{urlPrefix: matchUrlPrefix}]})
+chrome.webNavigation.onHistoryStateUpdated.addListener(handleNavigation, {url: [{urlPrefix: matchUrlPrefix}]});
+
+function changeBlockLevel({ username, blockLevel }) {
+  if (blockLevel === BLOCK_NONE) {
+    chrome.storage.sync.remove(username);
+  } else {
+    chrome.storage.sync.set({ [username]: blockLevel });
+  }
+}
+
+chrome.runtime.onMessage.addListener(
+  function (request, sender, sendResponse) {
+    switch (request.type) {
+      case CHANGE_BLOCK_LEVEL: {
+        changeBlockLevel(request);
+        break;
+      }
+      default:
+    }
+  }
+);

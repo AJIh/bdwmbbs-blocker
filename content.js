@@ -1,10 +1,3 @@
-const OP_NONE = 0;
-const OP_HIDE = 1;
-
-const GET_POSTS = 'GET_POSTS';
-const GET_THREADS = 'GET_THREADS';
-const FILTER_ITEMS = 'FILTER_ITEMS';
-
 let DOMItems;
 function retrievePostsFromDOM() {
   DOMItems = document.querySelectorAll('.post-card');
@@ -34,6 +27,31 @@ function hideSpecifiedItems(operations) {
   });
 }
 
+function retrieveUsernameFromDOM() {
+  return document.querySelector('.bbsid').textContent;
+}
+
+function onChangeBlockLevel(event) {
+  const username = retrieveUsernameFromDOM();
+  const blockLevel = event.target.value;
+  chrome.runtime.sendMessage({
+    type: CHANGE_BLOCK_LEVEL,
+    username,
+    blockLevel,
+  });
+}
+
+function renderUserPage(blockLevel) {
+  const p = document.querySelector('.nick > p');
+
+  const select = document.createElement('select');
+  select.innerHTML = Object.keys(levelName).map(level =>
+    `<option value="${level}" ${level === blockLevel ? 'selected' : ''}>${levelName[level]}</option>`).join('');
+  select.addEventListener('input', onChangeBlockLevel, false);
+
+  p.appendChild(select);
+}
+
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     switch (request.type) {
@@ -47,6 +65,15 @@ chrome.runtime.onMessage.addListener(
         sendResponse(threads);
         break;
       }
+      case GET_USER: {
+        const username = retrieveUsernameFromDOM();
+        sendResponse(username);
+        break;
+      }
+      case RENDER_USER: {
+        renderUserPage(request.blockLevel)
+        break;
+      }
       case FILTER_ITEMS:
         hideSpecifiedItems(request.operations);
         break;
@@ -54,6 +81,3 @@ chrome.runtime.onMessage.addListener(
     }
   }
 );
-//
-// document.addEventListener('DOMContentLoaded', hideSpecifiedPosts, false);
-// window.addEventListener('transitionend', hideSpecifiedPosts, false);

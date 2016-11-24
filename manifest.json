@@ -5,7 +5,7 @@
   "description": "This extension blocks posts of specified users",
   "version": "1.0",
   "background": {
-    "scripts": ["background.js"],
+    "scripts": ["constant.js", "background.js"],
     "persistent": false
   },
   "page_action": {
@@ -16,7 +16,7 @@
   "content_scripts": [
     {
       "matches": ["https://bbs.pku.edu.cn/v2/*"],
-      "js": ["content.js"],
+      "js": ["constant.js", "content.js"],
       "run_at": "document_start"
     }
   ],
