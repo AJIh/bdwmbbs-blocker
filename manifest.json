@@ -4,7 +4,7 @@
   "name": "BDWMBBS-BLOCKER(北大未名BBS屏蔽插件)",
   "description": "This widget can block posts of specified user. 这个插件可以屏蔽指定用户发的帖子和回复",
   "author": "AJI_h",
-  "version": "1.0",
+  "version": "1.1",
   "background": {
     "scripts": ["constant.js", "background.js"],
     "persistent": false
